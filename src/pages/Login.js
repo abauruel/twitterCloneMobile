@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
-
+import { StackActions, NavigationActions } from 'react-navigation'
 import { View, 
     Text,
      StyleSheet, 
      TextInput,
      TouchableOpacity,
      KeyboardAvoidingView,
-     AsyncStorage } from 'react-native';
+     AsyncStorage } from 'react-native'
 
+     
 import Icon from 'react-native-vector-icons/FontAwesome5'
 // import styles from './styles';
 
@@ -18,6 +19,22 @@ export default class Login extends Component {
     state = {
         username: '',
     }
+    navigateToTimeline = () =>{
+        const resetAction = StackActions.reset({
+            index: 0,
+            actions:[
+                NavigationActions.navigate({ routeName: 'Timeline' })
+            ]
+        })
+        this.props.navigation.dispatch(resetAction)
+    }
+    
+    async componentDidMount(){
+        const username = await AsyncStorage.getItem("@GoTwitter:username")
+        if(username){
+            this.navigateToTimeline()
+        }
+    }
 
     handleLogin = async() =>{
         const {username} = this.state
@@ -27,6 +44,8 @@ export default class Login extends Component {
         await AsyncStorage.setItem('@GoTwitter:username', username)
 
         this.props.navigation.navigate('Timeline')
+        
+        this.navigateToTimeline()
     }
 
     handleInputChange = username =>{
@@ -44,6 +63,8 @@ export default class Login extends Component {
                 placeholder="Nome de usuario"
                 value={this.state.username}
                 onChangeText={this.handleInputChange}
+                returnKeyType="send"
+                onSubmitEditing={this.handleLogin}
             />
             <TouchableOpacity style={styles.button} onPress={this.handleLogin}>
                 <Text style={styles.buttonText}>Entrar</Text>
